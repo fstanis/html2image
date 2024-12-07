@@ -11,7 +11,11 @@ void deleteRenderer(void* app) {
 }
 
 struct RenderResult render(void* app, const char* html) {
-  ul::RefPtr<ul::Bitmap> bitmap = static_cast<Renderer*>(app)->LoadAndRender(html);
+  ul::RefPtr<ul::Bitmap> bitmap =
+      static_cast<Renderer*>(app)->LoadAndRender(html);
+  if (bitmap.get() == nullptr) {
+    return RenderResult{};
+  }
   return RenderResult{.bytes = bitmap->raw_pixels(),
                       .size = bitmap->size(),
                       .width = bitmap->width(),

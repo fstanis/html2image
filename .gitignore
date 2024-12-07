@@ -26,7 +26,8 @@ go.work.sum
 
 .vscode
 
+cacert.pem
+icudt67l.dat
+
 /ultralight-sdk/*
 !/ultralight-sdk/download_sdk_here
-
-/wrapper/embeddedfiles.cpp

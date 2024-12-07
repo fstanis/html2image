@@ -1,8 +1,8 @@
 package wrapper
 
 /*
-#cgo CXXFLAGS: -I../ultralight-sdk/include -std=c++20
-#cgo LDFLAGS: -L../ultralight-sdk/bin -lUltralight -lUltralightCore -lWebCore -lAppCore -Wl,-rpath,./ultralight-sdk/bin
+#cgo CXXFLAGS: -I../../ultralight-sdk/include -std=c++20
+#cgo LDFLAGS: -L../../ultralight-sdk/bin -lUltralight -lUltralightCore -lWebCore -lAppCore -Wl,-rpath,./ultralight
 
 #include "wrapper.h"
 */
@@ -41,6 +41,6 @@ func (r Renderer) Render(html string) RenderResult {
 	}
 }
 
-func (r Renderer) SetLogger(logger Logger) {
+func (r Renderer) SetLogger(logger loggerFunc) {
 	registerLogger(r.handle, logger)
 }

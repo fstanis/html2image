@@ -1,4 +1,4 @@
-package main
+package html2image
 
 import (
 	"image"
@@ -6,9 +6,9 @@ import (
 	"runtime"
 	"sync"
 
-	"C"
+	"github.com/fstanis/html2image/internal/wrapper"
 
-	"github.com/fstanis/html2image/wrapper"
+	"C"
 )
 
 // Renderer represents an HTML engine that can process requests to render HTML
@@ -19,21 +19,38 @@ type Renderer struct {
 	resultChannel chan wrapper.RenderResult
 }
 
+// LogLevel, as reported by the Ultralight library.
+type LogLevel byte
+
+// Logger is an interface that receives log messages sent by the Ultralight
+// library, primarily for debugging during development.
+type Logger interface {
+	Log(level LogLevel, message string)
+}
+
+const (
+	LevelError LogLevel = iota
+	LevelWarning
+	LevelInfo
+)
+
 // NewRenderer creates a new instance of a Renderer with the given viewport
-// width and height and an optional logger.
-func NewRenderer(width int, height int, logger wrapper.Logger) *Renderer {
+// width and height and an optional Logger.
+func NewRenderer(width int, height int, logger Logger) *Renderer {
 	r := &Renderer{sync.Mutex{}, make(chan string), make(chan wrapper.RenderResult)}
 	go r.start(width, height, logger)
 	return r
 }
 
-func (r *Renderer) start(width int, height int, logger wrapper.Logger) {
+func (r *Renderer) start(width int, height int, logger Logger) {
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()
 	renderer := wrapper.NewRenderer(width, height)
 	defer renderer.Free()
 	if logger != nil {
-		renderer.SetLogger(logger)
+		renderer.SetLogger(func(level byte, message string) {
+			logger.Log(LogLevel(level), message)
+		})
 	}
 	for html := range r.renderChannel {
 		r.resultChannel <- renderer.Render(html)
@@ -51,6 +68,9 @@ func (r *Renderer) Render(html string) image.Image {
 	defer r.renderMutex.Unlock()
 	r.renderChannel <- html
 	res := <-r.resultChannel
+	if res.Bytes == nil {
+		return &image.RGBA{}
+	}
 	img := image.NewRGBA(image.Rect(0, 0, res.Width, res.Height))
 	for y := 0; y < res.Height; y++ {
 		for x := 0; x < res.Width; x++ {
