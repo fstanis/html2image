@@ -1,8 +1,8 @@
 package wrapper
 
 /*
-#cgo CXXFLAGS: -I../../ultralight-sdk/include -std=c++20
-#cgo LDFLAGS: -L../../ultralight-sdk/bin -lUltralight -lUltralightCore -lWebCore -lAppCore -Wl,-rpath,./ultralight
+#cgo CXXFLAGS: -std=c++20
+#cgo LDFLAGS: -lUltralight -lUltralightCore -lWebCore -lAppCore -Wl,-rpath,./ultralight
 
 #include "wrapper.h"
 */

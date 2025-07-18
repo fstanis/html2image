@@ -58,6 +58,22 @@ Assuming you have `curl` and 7-zip installed, the following should work.
 ```bash
 curl -o /tmp/sdk.7z -L 'https://ultralight-sdk-dev.sfo2.cdn.digitaloceanspaces.com/ultralight-sdk-min-latest-linux-x64.7z'
 7z x /tmp/sdk.7z -o./ultralight-sdk
+export ULTRALIGHT_SDK_DIR="$(realpath ./ultralight-sdk)"
+```
+
+### Building
+
+If you have `github.com/fstanis/html2image` as a dependency, you must provide
+the path to the Ultralight SDK downloaded in the previous steps via the
+`CGO_CXXFLAGS` and `CGO_LDFLAGS` environment variables.
+
+This examples assumes you set `ULTRALIGHT_SDK_DIR` in the previous step.
+
+```bash
+cd /path/to/your/project
+go mod tidy
+
+CGO_CXXFLAGS="-I$ULTRALIGHT_SDK_DIR/include" CGO_LDFLAGS="-L$ULTRALIGHT_SDK_DIR/bin" go build .
 ```
 
 ### Required runtime files
@@ -77,14 +93,17 @@ binary. They can be found in the Ultralight SDK.
 The following command copies them from their respective locations.
 
 ```bash
+cd /path/to/your/project
+mkdir ultralight
+
 cp \
-  './ultralight-sdk/bin/libAppCore.so' \
-  './ultralight-sdk/bin/libUltralightCore.so' \
-  './ultralight-sdk/bin/libUltralight.so' \
-  './ultralight-sdk/bin/libWebCore.so' \
-  './ultralight-sdk/resources/cacert.pem' \
-  './ultralight-sdk/resources/icudt67l.dat' \
-  './ultralight'
+  "$ULTRALIGHT_SDK_DIR/bin/libAppCore.so" \
+  "$ULTRALIGHT_SDK_DIR/bin/libUltralightCore.so" \
+  "$ULTRALIGHT_SDK_DIR/bin/libUltralight.so" \
+  "$ULTRALIGHT_SDK_DIR/bin/libWebCore.so" \
+  "$ULTRALIGHT_SDK_DIR/resources/cacert.pem" \
+  "$ULTRALIGHT_SDK_DIR/resources/icudt67l.dat" \
+  "./ultralight"
 ```
 
 ## Usage
