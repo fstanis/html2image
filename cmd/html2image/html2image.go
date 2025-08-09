@@ -15,8 +15,9 @@ import (
 
 var (
 	outputFlag   = flag.String("output", "", "output filename")
-	widthFlag    = flag.Int("width", 800, "help message for flag n")
-	heightFlag   = flag.Int("height", 600, "help message for flag n")
+	widthFlag    = flag.Int("width", 800, "output image width")
+	heightFlag   = flag.Int("height", 600, "output image width")
+	scaleFlag    = flag.Float64("scale", 1, "scale for the rendered page")
 	logLevelFlag = flag.String("loglevel", "error", "minimum log level to display")
 )
 
@@ -57,11 +58,11 @@ func newLogger(minLevelStr string) logger {
 	return logger{minLevel}
 }
 
-func render(output string, width int, height int, lggr logger) error {
+func render(output string, width int, height int, scale float64) error {
 	if output == "" {
 		return errors.New("no output file specified")
 	}
-	renderer := html2image.NewRenderer(width, height, lggr)
+	renderer := html2image.NewRenderer(width, height, scale)
 	defer renderer.Free()
 	stdin, err := io.ReadAll(os.Stdin)
 	if err != nil {
@@ -81,7 +82,8 @@ func render(output string, width int, height int, lggr logger) error {
 
 func main() {
 	flag.Parse()
-	if err := render(*outputFlag, *widthFlag, *heightFlag, newLogger(*logLevelFlag)); err != nil {
+	html2image.SetLogger(newLogger(*logLevelFlag))
+	if err := render(*outputFlag, *widthFlag, *heightFlag, *scaleFlag); err != nil {
 		log.Fatal(err)
 	}
 }

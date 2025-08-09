@@ -4,7 +4,7 @@
 
 #include "RenderResult.h"
 
-void* newRenderer(unsigned int width, unsigned int height);
+void* newRenderer(unsigned int width, unsigned int height, double scale);
 void deleteRenderer(void* app);
 
 struct RenderResult render(void* app, const char* html);

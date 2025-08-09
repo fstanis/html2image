@@ -1,7 +1,7 @@
 package wrapper
 
 import (
-	"unsafe"
+	"sync"
 )
 import "C"
 
@@ -12,28 +12,32 @@ type logEntry struct {
 	message string
 }
 
-var loggerMap = make(map[unsafe.Pointer]loggerFunc)
-var logBuffer = make(map[unsafe.Pointer][]logEntry)
+var logger loggerFunc
+var logBuffer []logEntry
+var loggerMutex sync.Mutex
 
-func registerLogger(app unsafe.Pointer, logger loggerFunc) {
-	loggerMap[app] = logger
-	if len(logBuffer[app]) > 0 {
-		for _, entry := range logBuffer[app] {
+func SetLogger(l loggerFunc) {
+	loggerMutex.Lock()
+	defer loggerMutex.Unlock()
+	logger = l
+	if logger == nil {
+		return
+	}
+	if len(logBuffer) > 0 {
+		for _, entry := range logBuffer {
 			logger(entry.level, entry.message)
 		}
-		delete(logBuffer, app)
+		logBuffer = nil
 	}
 }
 
-func unregisterLogger(app unsafe.Pointer) {
-	delete(loggerMap, app)
-}
-
 //export logMessage
-func logMessage(app unsafe.Pointer, level C.uchar, message *C.char) {
-	if logger, ok := loggerMap[app]; ok {
+func logMessage(level C.uchar, message *C.char) {
+	loggerMutex.Lock()
+	defer loggerMutex.Unlock()
+	if logger != nil {
 		logger(byte(level), C.GoString(message))
 	} else {
-		logBuffer[app] = append(logBuffer[app], logEntry{byte(level), C.GoString(message)})
+		logBuffer = append(logBuffer, logEntry{byte(level), C.GoString(message)})
 	}
 }

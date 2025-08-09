@@ -111,8 +111,8 @@ cp \
 Simple example that renders HTML into a PNG file.
 
 ```go
-// create a new instance of a renderer with a viewport of 800x600
-renderer := html2image.NewRenderer(800, 600, nil)
+// create a new instance of a renderer with a viewport of 800x600 and scale 2
+renderer := html2image.NewRenderer(800, 600, 2)
 defer renderer.Free()
 
 // render an image

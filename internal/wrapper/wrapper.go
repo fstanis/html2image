@@ -20,12 +20,11 @@ type Renderer struct {
 	handle unsafe.Pointer
 }
 
-func NewRenderer(width, height int) Renderer {
-	return Renderer{C.newRenderer(C.uint(width), C.uint(height))}
+func NewRenderer(width, height int, scale float64) Renderer {
+	return Renderer{C.newRenderer(C.uint(width), C.uint(height), C.double(scale))}
 }
 
 func (r Renderer) Free() {
-	unregisterLogger(r.handle)
 	C.deleteRenderer(r.handle)
 }
 
@@ -39,8 +38,4 @@ func (r Renderer) Render(html string) RenderResult {
 		Height: int(res.height),
 		BPP:    int(res.bpp),
 	}
-}
-
-func (r Renderer) SetLogger(logger loggerFunc) {
-	registerLogger(r.handle, logger)
 }
