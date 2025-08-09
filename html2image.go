@@ -36,22 +36,20 @@ const (
 
 // NewRenderer creates a new instance of a Renderer with the given viewport
 // width and height and an optional Logger.
-func NewRenderer(width int, height int, logger Logger) *Renderer {
+func NewRenderer(width, height int, scale float64) *Renderer {
+	if scale <= 0 {
+		scale = 1
+	}
 	r := &Renderer{sync.Mutex{}, make(chan string), make(chan wrapper.RenderResult)}
-	go r.start(width, height, logger)
+	go r.start(width, height, scale)
 	return r
 }
 
-func (r *Renderer) start(width int, height int, logger Logger) {
+func (r *Renderer) start(width, height int, scale float64) {
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()
-	renderer := wrapper.NewRenderer(width, height)
+	renderer := wrapper.NewRenderer(width, height, scale)
 	defer renderer.Free()
-	if logger != nil {
-		renderer.SetLogger(func(level byte, message string) {
-			logger.Log(LogLevel(level), message)
-		})
-	}
 	for html := range r.renderChannel {
 		r.resultChannel <- renderer.Render(html)
 	}
@@ -84,4 +82,14 @@ func (r *Renderer) Render(html string) image.Image {
 		}
 	}
 	return img
+}
+
+func SetLogger(logger Logger) {
+	if logger == nil {
+		wrapper.SetLogger(nil)
+		return
+	}
+	wrapper.SetLogger(func(level byte, message string) {
+		logger.Log(LogLevel(level), message)
+	})
 }

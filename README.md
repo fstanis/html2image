@@ -60,7 +60,7 @@ curl -o /tmp/sdk.7z -L 'https://ultralight-sdk-dev.sfo2.cdn.digitaloceanspaces.c
 7z x /tmp/sdk.7z -o./ultralight-sdk
 export ULTRALIGHT_SDK_DIR="$(realpath ./ultralight-sdk)"
 ```
-
+https://ul-sdk.nyc3.digitaloceanspaces.com/1.4.0/linux/x64/release/ultralight-free-sdk-1.4.0-linux-x64.7z?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=DO801ZCVN6ZXPWYZ4HTE%2F20250809%2Fnyc3%2Fs3%2Faws4_request&X-Amz-Date=20250809T151335Z&X-Amz-Expires=300&X-Amz-Signature=24f685c5ab0384d3f62fb5a41cddd7e28483027a08025fa41bbfd26de1c910af&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject
 ### Building
 
 If you have `github.com/fstanis/html2image` as a dependency, you must provide
@@ -111,8 +111,8 @@ cp \
 Simple example that renders HTML into a PNG file.
 
 ```go
-// create a new instance of a renderer with a viewport of 800x600
-renderer := html2image.NewRenderer(800, 600, nil)
+// create a new instance of a renderer with a viewport of 800x600 and scale 2.0
+renderer := html2image.NewRenderer(800, 600, 2)
 defer renderer.Free()
 
 // render an image

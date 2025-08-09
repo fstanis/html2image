@@ -2,8 +2,8 @@
 
 extern "C" {
 
-void* newRenderer(unsigned int width, unsigned int height) {
-  return new Renderer(width, height);
+void* newRenderer(unsigned int width, unsigned int height, double scale) {
+  return new Renderer(width, height, scale);
 }
 
 void deleteRenderer(void* app) {
